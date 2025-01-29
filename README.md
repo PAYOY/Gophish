@@ -40,7 +40,49 @@ Para instalar Gophish debemos de descargarnos el comprimido.
 wget https://github.com/gophish/gophish/releases/download/v0.12.1/gophish-v0.12.1-linux-64bit.zip #Puedes probar con curl también
 sudo unzip gophish-v0.12.1-linux-64bit.zip
 ```
+El último paso es instalar el servicio de correo, en este caso utilizaremos Postfix.
+
+```bash
+sudo apt install postfix
+```
 
 Eso es todo para poder comenzar con la configuración de nuestro Gophish.
+
+# Configuración de Gophish y Postfix
+
+Nos dirigimos a la carpeta donde descargamos Gophish y le damos permisos de ejecución.
+
+```bash
+sudo chmod +x gophish.sh
+```
+Ahora editamos el archivo de configuración `config.json` y cambiamos la dirección local que tiene asignado el apartado de admin_server y phish_server.
+
+> Nota: Debemos de cambiar el puerto 80 de phish_server al 443 (HTTPS), también debemos de habilitar los logs de gophish en "filename" y por último agregar los certificados generados.
+
+```bash
+{
+        "admin_server": {
+                "listen_url": "0.0.0.0:3333",
+                "use_tls": true,
+                "cert_path": "gophish_admin.crt",
+                "key_path": "gophish_admin.key",
+                "trusted_origins": []
+        },
+        "phish_server": {
+                "listen_url": "0.0.0.0:80",
+                "use_tls": false,
+                "cert_path": "example.crt",
+                "key_path": "example.key"
+        },
+        "db_name": "sqlite3",
+        "db_path": "gophish.db",
+        "migrations_prefix": "db/db_",
+        "contact_address": "",
+        "logging": {
+                "filename": "gophish.log",
+                "level": ""
+        }
+}
+```
 
 
