@@ -13,7 +13,7 @@ Debemos de instalar el lenguaje de programación Go, el cual podemos descargar d
 sudo apt install golang
 ```
 Ahora debemos de tener asociado nuestra IP pública a nuestro nombre de dominio, esto es importante para poder generar los certificados mediante Certbot.
-Una vez que nuestra IP resuelva a nuestro DNS procedemos con la instalación de Apache y Certbot
+Una vez que nuestra IP resuelva a nuestro DNS procedemos con la instalación de Apache y Certbot.
 Para instalar Apache realizamos lo siguiente:
 
 ```bash
@@ -57,22 +57,22 @@ sudo chmod +x gophish.sh
 ```
 Ahora editamos el archivo de configuración `config.json` y cambiamos la dirección local que tiene asignado el apartado de admin_server y phish_server.
 
-> Nota: Debemos de cambiar el puerto 80 de phish_server al 443 (HTTPS), también debemos de habilitar los logs de gophish en "filename" y por último agregar los certificados generados.
+> Nota: Debemos de cambiar el puerto 80 de phish_server al 443 (HTTPS) y habilitar el TLS, también debemos de activar los logs de gophish en "filename" y por último agregar los certificados generados en admin_server y phish_server.
 
-```bash
+```json
 {
         "admin_server": {
                 "listen_url": "0.0.0.0:3333",
                 "use_tls": true,
-                "cert_path": "gophish_admin.crt",
-                "key_path": "gophish_admin.key",
+                "cert_path": "/etc/letsencrypt/live/<dominio>/fullchain.pem",
+                "key_path": "/etc/letsencrypt/live/<dominio>/privkey.pem",
                 "trusted_origins": []
         },
         "phish_server": {
-                "listen_url": "0.0.0.0:80",
-                "use_tls": false,
-                "cert_path": "example.crt",
-                "key_path": "example.key"
+                "listen_url": "0.0.0.0:443",
+                "use_tls": true,
+                "cert_path": "/etc/letsencrypt/live/<dominio>/fullchain.pem",
+                "key_path": "/etc/letsencrypt/live/<dominio>/privkey.pem"
         },
         "db_name": "sqlite3",
         "db_path": "gophish.db",
@@ -84,5 +84,38 @@ Ahora editamos el archivo de configuración `config.json` y cambiamos la direcci
         }
 }
 ```
+Teniendo lo anterior procedemos a configurar la manera de gestionar Gophish. Para ello creamos lo siguienet:
+
+```bash
+sudo nano /etc/systemd/system/gophish.service
+```
+Ingresamos los siguiente:
+
+```bash
+[Unit]
+Description=Gophish Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/ruta/a/la/carpeta/de/gophish
+ExecStart=/ruta/a/la/carpeta/de/gophish/gophish
+Restart=always
+Environment=GO_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+```
+Recargamos el systemd
+
+
+
+
+
+
+
+
 
 
